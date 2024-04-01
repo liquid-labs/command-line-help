@@ -4,14 +4,36 @@
   "description": "",
   "main": "dist/command-line-help.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "make",
+    "lint": "make lint",
+    "lint:fix": "make lint-fix",
+    "test": "make test",
+    "prepack": "make build",
+    "preversion": "npm test && make lint",
+    "qa": "make qa"
   },
+  "files": [
+    "dist/*"
+  ],
   "keywords": [],
   "author": "Zane Rockenbaugh <zane@liquid-labs.com>",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "repository": "git+ssh://git@github.com/liquid-labs/command-line-help.git",
   "bugs": {
     "url": "https://github.com/liquid-labs/command-line-help/issues"
   },
-  "homepage": "https://github.com/liquid-labs/command-line-help#readme"
+  "homepage": "https://github.com/liquid-labs/command-line-help#readme",
+  "devDependencies": {
+    "@liquid-labs/sdlc-resource-babel-and-rollup": "^1.0.0-alpha.8",
+    "@liquid-labs/sdlc-resource-eslint": "^1.0.0-alpha.11",
+    "@liquid-labs/sdlc-resource-jest": "^1.0.0-alpha.7"
+  },
+  "dependencies": {
+    "@liquid-labs/terminal-text": "^1.0.0-alpha.4",
+    "command-line-usage": "^7.0.1",
+    "wrap-text-plus": "^1.0.0-alpha.11"
+  },
+  "_comply": {
+    "orgKey": "@liquid-labs"
+  }
 }
