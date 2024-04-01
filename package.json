@@ -20,7 +20,7 @@
     "@liquid-labs/sdlc-resource-jest": "^1.0.0-alpha.7"
   },
   "dependencies": {
-    "@liquid-labs/terminal-text": "file:.yalc/@liquid-labs/terminal-text",
+    "@liquid-labs/terminal-text": "^1.0.0-alpha.4",
     "command-line-usage": "^7.0.1",
     "wrap-text-plus": "^1.0.0-alpha.11"
   }
