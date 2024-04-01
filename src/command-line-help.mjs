@@ -14,7 +14,7 @@ const commandLineHelp = ({ cliSpec, commands = [], globalOptions, mainOptionsGlo
     let { command, arguments : options } = cliSpec
     const { description, mainOptions } = cliSpec
     // mainCommand and mainOptions are deprecated keys; use command and arguments instead
-    
+
     options = (options?.length > 0 && options) || mainOptions || []
     if (globalOptions !== undefined) {
       console.log('adding global options') // DEBUG
@@ -46,7 +46,7 @@ Use '${mainCommand} --help [command]${mainOptionsGlobal === true ? "'/'[command]
     output += wrap(formatTerminalText(commandLineUsage(sections)), { width })
     console.log('options B:', options) // DEBUG
     output += documentOptions({ options, width })
-    output += documentCommands({ commands: specCommands, width })
+    output += documentCommands({ commands : specCommands, width })
   } else {
     let currSpec = cliSpec
     const commandsSeen = []
@@ -72,7 +72,7 @@ Use '${mainCommand} --help [command]${mainOptionsGlobal === true ? "'/'[command]
     ]
     output += wrap(formatTerminalText(commandLineUsage(sections)), { width })
     output += documentOptions({ options, width })
-    output += documentCommands({ commands: specCommands, width })
+    output += documentCommands({ commands : specCommands, width })
   }
 
   return output
@@ -86,8 +86,8 @@ const colorCommand = (name) => `<cyan1>${name}<rst>`
 
 const colorOption = (name) => `<teal>${name}<rst>`
 
-const documentCommands = ({ commands, width }) => 
-  documentItems({ colorFunc: colorCommand, header: 'Commands', items: commands, width })
+const documentCommands = ({ commands, width }) =>
+  documentItems({ colorFunc : colorCommand, header : 'Commands', items : commands, width })
 
 const documentItems = ({ colorFunc, header, items, width }) => {
   if (items.length > 0) {
@@ -96,17 +96,16 @@ const documentItems = ({ colorFunc, header, items, width }) => {
     return wrap(formatTerminalText(commandLineUsage({
       header  : colorHeader2(header),
       content : {
-        options : { noWrap: true },
-        data: items.map(({ name, description }) => ({ name: colorFunc(name), summary : description }))
+        options : { noWrap : true },
+        data    : items.map(({ name, description }) => ({ name : colorFunc(name), summary : description }))
       }
-    })), { width, hangingIndent: longestItem + 5})
-  }
-  else {
+    })), { width, hangingIndent : longestItem + 5 })
+  } else {
     return ''
   }
 }
 
-const documentOptions = ({ options, width }) => 
-  documentItems({ colorFunc: colorOption, header: 'Options', items: options, width })
+const documentOptions = ({ options, width }) =>
+  documentItems({ colorFunc : colorOption, header : 'Options', items : options, width })
 
 export { commandLineHelp }
