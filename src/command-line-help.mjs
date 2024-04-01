@@ -1,17 +1,29 @@
 import commandLineUsage from 'command-line-usage'
+import { wrap } from 'wrap-text-plus'
 
-const commandLineHelp = ({ cliSpec, commands = [], mainOptionsGlobal = false }) => {
-  let { command, arguments : options } = cliSpec
-  const { mainCommand, description, mainOptions } = cliSpec
-  // mainCommand and mainOptions are deprecated keys
-  command = command || mainCommand
-  options = options || mainOptions
-  options = options.filter(({ name }) => !name.match(/(?:sub-?)command/i))
+import { formatTerminalText } from '@liquid-labs/terminal-text'
+
+const commandLineHelp = ({ cliSpec, commands = [], globalOptions, mainOptionsGlobal = false, width = 80 }) => {
+  let { command : mainCommand } = cliSpec
+  mainCommand = mainCommand || cliSpec.mainCommand // deprecated alternate name for top level command
+  let output = ''
 
   let sections
 
   if (commands.length === 0) {
-    const { commands : specCommands = [], arguments : options = [] } = cliSpec
+    let { command, arguments : options } = cliSpec
+    const { description, mainOptions } = cliSpec
+    // mainCommand and mainOptions are deprecated keys; use command and arguments instead
+    
+    options = (options?.length > 0 && options) || mainOptions || []
+    if (globalOptions !== undefined) {
+      console.log('adding global options') // DEBUG
+      options.push(...globalOptions)
+    }
+    options = options.filter(({ name }) => !name.match(/(?:sub-?)?command/i))
+    console.log('options A:', options) // DEBUG
+
+    const { commands : specCommands = [] } = cliSpec
 
     let usageMessage = command
     if (mainOptionsGlobal === false) {
@@ -22,27 +34,19 @@ const commandLineHelp = ({ cliSpec, commands = [], mainOptionsGlobal = false }) 
     }
 
     sections = [
-      { header : mainCommand, content : description },
+      { header : colorHeader1(mainCommand), content : description },
       {
-        header  : 'Usage',
+        header  : colorHeader2('Usage'),
         content : `${usageMessage}
 
 Use '${mainCommand} --help [command]${mainOptionsGlobal === true ? "'/'[command] --help" : ''}' to get details on command options.`
       }
     ]
 
-    if (options.length > 0) {
-      sections.push({
-        header  : 'Options',
-        content : options.map(({ name, description }) => ({ name, summary : description }))
-      })
-    }
-    if (specCommands.length > 0) {
-      sections.push({
-        header  : 'Commands',
-        content : cliSpec.commands.map(({ name, description }) => ({ name, summary : description }))
-      })
-    }
+    output += wrap(formatTerminalText(commandLineUsage(sections)), { width })
+    console.log('options B:', options) // DEBUG
+    output += documentOptions({ options, width })
+    output += documentCommands({ commands: specCommands, width })
   } else {
     let currSpec = cliSpec
     const commandsSeen = []
@@ -57,65 +61,52 @@ Use '${mainCommand} --help [command]${mainOptionsGlobal === true ? "'/'[command]
 
     const { commands : specCommands = [], description } = currSpec
     let { arguments : options = [] } = currSpec
-    options = options.filter(({ name }) => !name.match(/(?:sub-?)command/i))
+    options = options.filter(({ name }) => !name.match(/(?:sub-?)?command/i))
+    if (globalOptions !== undefined) {
+      console.log('adding global options') // DEBUG
+      options.push(...globalOptions)
+    }
 
     sections = [
-      { header : `${mainCommand} ${commands.join(' ')}`, content : description }
+      { header : colorHeader1(`${mainCommand} ${commands.join(' ')}`), content : description }
     ]
-    if (options.length > 0) {
-      sections.push({
-        header  : 'Options',
-        content : options.map(({ name, description }) => ({ name, summary : description }))
-      })
-    }
-    if (specCommands.length > 0) {
-      sections.push({
-        header  : 'Commands',
-        content : cliSpec.commands.map(({ name, description }) => ({ name, summary : description }))
-      })
-    }
+    output += wrap(formatTerminalText(commandLineUsage(sections)), { width })
+    output += documentOptions({ options, width })
+    output += documentCommands({ commands: specCommands, width })
   }
 
-  const usage = commandLineUsage(sections)
-
-  return usage
+  return output
 }
-/*
-const makeSections = ({ command, commandsSpec = cliSpec, prefix }) => {
-  const commandSpec = commandsSpec.commands.find(({ name }) => name === command)
 
-  const details = commandSpec.description
-  const options = commandSpec.arguments || []
+const colorHeader1 = (header) => `<h1>${header}<rst>`
 
-  const optionList = options.map((v) => Object.assign({}, v))
-  const defaultOptionIndex = optionList.findIndex(({ defaultOption }) => defaultOption)
+const colorHeader2 = (header) => `<h2>${header}<rst>`
 
-  let title = prefix + ' ' + command
-  let defaultOptionSpec
+const colorCommand = (name) => `<cyan1>${name}<rst>`
 
-  if (defaultOptionIndex !== -1) {
-    defaultOptionSpec = optionList[defaultOptionIndex]
-    optionList.splice(defaultOptionIndex, 1)
+const colorOption = (name) => `<teal>${name}<rst>`
+
+const documentCommands = ({ commands, width }) => 
+  documentItems({ colorFunc: colorCommand, header: 'Commands', items: commands, width })
+
+const documentItems = ({ colorFunc, header, items, width }) => {
+  if (items.length > 0) {
+    const longestItem = items.reduce((acc, { name }) => acc >= name.length ? acc : name.length, 0)
+
+    return wrap(formatTerminalText(commandLineUsage({
+      header  : colorHeader2(header),
+      content : {
+        options : { noWrap: true },
+        data: items.map(({ name, description }) => ({ name: colorFunc(name), summary : description }))
+      }
+    })), { width, hangingIndent: longestItem + 5})
   }
-
-  if (optionList.length > 0) {
-    title += ' <options>'
+  else {
+    return ''
   }
+}
 
-  if (defaultOptionSpec !== undefined) {
-    const { name, required } = defaultOptionSpec
-    title += required === true ? ` [${name}]` : ` <${name}>`
-  }
-
-  const sections = [{ header : title, content : commandSpec.summary }]
-  if (optionList.length > 0) {
-    sections.push({ header : 'Options', optionList })
-  }
-  if (details !== undefined) {
-    sections.push({ header : 'Details', content : details })
-  }
-
-  return sections
-} */
+const documentOptions = ({ options, width }) => 
+  documentItems({ colorFunc: colorOption, header: 'Options', items: options, width })
 
 export { commandLineHelp }

@@ -20,6 +20,8 @@
     "@liquid-labs/sdlc-resource-jest": "^1.0.0-alpha.7"
   },
   "dependencies": {
-    "command-line-usage": "^7.0.1"
+    "@liquid-labs/terminal-text": "^1.0.0-alpha.3",
+    "command-line-usage": "^7.0.1",
+    "wrap-text-plus": "^1.0.0-alpha.11"
   }
 }
