@@ -1,0 +1,19 @@
+Test git rev: ee8aa3e12147781081621888e3fc4b09964fabc8
+PASS test/command-line-help.test.js
+  commandLineHelp
+    with no options or commands
+      ✓ prints command and description with color
+      ✓ does not print 'Options' section
+      ✓ does not print 'Commands' section
+
+-----------------------|---------|----------|---------|---------|------------------------
+File                   | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s      
+-----------------------|---------|----------|---------|---------|------------------------
+All files              |   56.48 |    31.25 |      40 |    61.9 |                        
+ command-line-help.mjs |   56.48 |    31.25 |      40 |    61.9 | 27,38,42,59-84,103-109 
+-----------------------|---------|----------|---------|---------|------------------------
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        0.143 s, estimated 1 s
+Ran all test suites.
